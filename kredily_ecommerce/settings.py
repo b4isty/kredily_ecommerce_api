@@ -137,7 +137,13 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 
 }
+from datetime import timedelta
+...
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=2),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 

@@ -22,12 +22,18 @@ class Order(models.Model):
     An order consists of multiple order items, each representing a product and its quantity.
     The order has a status indicating its current state in the fulfillment process.
     """
+    PENDING = "pending"
+    PROCESSING = "processing"
+    SHIPPED ="shipped"
+    Delivered = "delivered"
+    CANCELED = "cancelled"
+
     STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('shipped', 'Shipped'),
-        ('delivered', 'Delivered'),
-        ('cancelled', 'Cancelled'),
+        (PENDING, 'Pending'),
+        (PROCESSING, 'Processing'),
+        (SHIPPED, 'Shipped'),
+        (Delivered, 'Delivered'),
+        (CANCELED, 'Cancelled'),
     )
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, db_index=True)
     customer = models.ForeignKey(User, on_delete=models.CASCADE)
