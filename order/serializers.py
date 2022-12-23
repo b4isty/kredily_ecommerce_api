@@ -41,16 +41,17 @@ class OrderSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("duplicate input product id")
 
         product_qs = Product.objects.filter(id__in=id_list).order_by("id").values("id", "quantity")
+        product_quantities = {p["id"]: p["quantity"] for p in product_qs}
 
-        # check if any product from input is not there &&  check if quantity is less and return error
-        product_err_msgs = []
-        for indx, product_dict in enumerate(sorted_product_data):
-
-            available_quantity = product_qs[indx]["quantity"]
-
-            if product_dict["quantity"] > available_quantity:
-                err_msg = {product_dict["id"]: f"only {available_quantity} item available"}
-                product_err_msgs.append(err_msg)
+        product_err_msgs = {}
+        for product_dict in sorted_product_data:
+            product_id = product_dict["id"]
+            if product_id not in product_quantities:
+                err_msg = f"product with id {product_id} does not exist"
+                product_err_msgs[product_id] = err_msg
+            elif product_dict["quantity"] > product_quantities[product_id]:
+                err_msg = f"only {product_quantities[product_id]} items available"
+                product_err_msgs[product_id] = err_msg
 
         if product_err_msgs:
             raise serializers.ValidationError(product_err_msgs)
@@ -101,7 +102,3 @@ class OrderListSerializer(serializers.ModelSerializer):
     def _get_order_items(self, order):
         serializer = OrderItemSerializer(order.orderitem_set.all(), many=True, read_only=True)
         return serializer.data
-
-
-
-

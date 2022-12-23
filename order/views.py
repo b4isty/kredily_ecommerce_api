@@ -1,10 +1,7 @@
-from django.http import JsonResponse
-from rest_framework import status
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Product, Order, OrderItem
+from .models import Product, Order
 from .serializers import ProductSerializer, OrderSerializer, OrderListSerializer
 
 
@@ -22,6 +19,8 @@ class OrderCreateAPIView(CreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
+
+
 class OrderListAPIView(ListAPIView):
     """Order History View"""
     permission_classes = (IsAuthenticated,)
@@ -32,8 +31,3 @@ class OrderListAPIView(ListAPIView):
             customer=self.request.user
         ).prefetch_related("orderitem_set").order_by("-date_placed")
         return orders
-
-
-
-
-

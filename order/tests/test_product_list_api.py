@@ -33,7 +33,6 @@ class ProductListAPITestCase(APITestCase):
         # Send request to product list endpoint with page parameter
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url)
-        print("***",response.data)
 
         # Assert that the request was successful
         self.assertEqual(response.status_code, status.HTTP_200_OK)

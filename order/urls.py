@@ -4,7 +4,7 @@ app_name = "order"
 
 
 urlpatterns = [
-    path("products", ProductListAPIView.as_view()),
-    path('orders', OrderCreateAPIView.as_view()),
-    path('orders-history', OrderListAPIView.as_view())
+    path("products", ProductListAPIView.as_view(), name="product_list"),
+    path('orders', OrderCreateAPIView.as_view(), name="create"),
+    path('orders-history', OrderListAPIView.as_view(), name="order_history")
 ]
