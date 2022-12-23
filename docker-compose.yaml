@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  kredily_web:
+    restart: always
+    container_name: kredily_web
+    env_file:
+      - .env
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    networks:
+      - kredily
+    volumes:
+      - .:/code
+    command: >
+      sh -c "
+             python3 manage.py wait_for_db &&
+             python3 manage.py collectstatic --noinput &&
+             python3 manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - kredily_db
+
+  kredily_db:
+    image: bitnami/postgresql:12
+    container_name: kredily_db
+    ports:
+      - "5433:5432"
+    env_file: .env
+    networks:
+      - kredily
+    volumes:
+      - kredily_db_data:/bitnami/postgresql
+
+
+volumes:
+  kredily_db_data:
+networks:
+  kredily:
