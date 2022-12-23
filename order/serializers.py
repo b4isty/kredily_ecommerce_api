@@ -3,6 +3,7 @@ from .models import Product, Order, OrderItem
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    """Product Serializer"""
     class Meta:
         model = Product
         fields = ('id', 'name', 'price', 'quantity')
@@ -12,10 +13,10 @@ class OrderProductSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True)
     quantity = serializers.IntegerField(required=True)
 
-        # fields = ("id", "quantity")
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    """Order Create Serializer"""
     products = OrderProductSerializer(many=True, write_only=True)
 
     class Meta:
@@ -26,10 +27,7 @@ class OrderSerializer(serializers.ModelSerializer):
     @staticmethod
     def convert_products_to_id_list(data):
         """
-        :param data:
-        :type data:
-        :return:
-        :rtype:
+        Convert product data dictionaries to list of product ids
         """
 
         id_list = [product_dict['id'] for product_dict in data]
@@ -56,8 +54,6 @@ class OrderSerializer(serializers.ModelSerializer):
 
         if product_err_msgs:
             raise serializers.ValidationError(product_err_msgs)
-
-
         return data
 
 
@@ -88,3 +84,24 @@ class OrderSerializer(serializers.ModelSerializer):
 
         OrderItem.objects.bulk_create(order_item_list)
         return order_obj
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    """Order Item Serializer"""
+    class Meta:
+        model = OrderItem
+        fields = ("product", "quantity")
+
+class OrderListSerializer(serializers.ModelSerializer):
+    """Order History List Serializer"""
+    order_items = serializers.SerializerMethodField("_get_order_items", required=False, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ("id", "customer", "status", "date_placed", "order_items")
+    def _get_order_items(self, order):
+        serializer = OrderItemSerializer(order.orderitem_set.all(), many=True, read_only=True)
+        return serializer.data
+
+
+
+
