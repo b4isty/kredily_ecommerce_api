@@ -4,7 +4,7 @@
 
 Clone this repo
 ```bash
-git clone 
+git clone https://github.com/b4isty/kredily_ecommerce_api.git
 ```
 To run the project use docker run command below
 ```bash
