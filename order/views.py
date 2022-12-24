@@ -1,4 +1,4 @@
-from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Product, Order
@@ -18,7 +18,9 @@ class OrderListCreateAPIView(ListCreateAPIView):
     """ListCreate Order View"""
 
     def get_queryset(self):
-        return Order.objects.filter(customer=self.request.user).prefetch_related("orderitem_set").order_by('-date_placed')
+        return Order.objects.filter(
+            customer=self.request.user
+        ).prefetch_related("orderitem_set").order_by('-date_placed')
 
 
     def get_serializer_class(self):
@@ -26,6 +28,3 @@ class OrderListCreateAPIView(ListCreateAPIView):
             return OrderListSerializer
         elif self.request.method == 'POST':
             return OrderSerializer
-
-
-

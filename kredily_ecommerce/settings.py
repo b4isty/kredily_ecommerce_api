@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # third party libraries
     'rest_framework',
     'rest_framework_simplejwt',
+    'drf_yasg',
 
     # local apps
     'core',

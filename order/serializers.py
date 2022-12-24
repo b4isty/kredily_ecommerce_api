@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from .models import Product, Order, OrderItem
 
@@ -99,6 +100,8 @@ class OrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ("id", "customer", "status", "date_placed", "order_items")
+
+    @swagger_serializer_method(serializer_or_field=OrderItemSerializer)
     def _get_order_items(self, order):
         serializer = OrderItemSerializer(order.orderitem_set.all(), many=True, read_only=True)
         return serializer.data
