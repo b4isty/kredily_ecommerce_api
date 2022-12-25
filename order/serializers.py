@@ -35,29 +35,58 @@ class OrderSerializer(serializers.ModelSerializer):
         return id_list
 
     def validate_products(self, data):
+        """
+        Validate a list of products by checking for duplicates, existence, and quantity.
+
+        Args:
+            data (list): A list of dictionaries, each representing a product with an 'id' and 'quantity' key.
+
+        Returns:
+            list: The original data list if all products are valid.
+
+        Raises:
+            serializers.ValidationError: If there are duplicate product id values,
+                a product does not exist, or the quantity of a product is greater
+                than the available quantity in the database.
+        """
+        # Sort products by id
         sorted_product_data = list(sorted(data, key=lambda i: i['id']))
 
+        # Extract id values from products
         id_list = self.convert_products_to_id_list(sorted_product_data)
+
+        # Check for duplicates in id values
         if len(id_list) != len(set(id_list)):
             raise serializers.ValidationError("duplicate input product id")
 
         product_qs = Product.objects.filter(id__in=id_list).order_by("id").values("id", "quantity")
+
+        # where the keys are the id values and the values are the quantity values.
         product_quantities = {p["id"]: p["quantity"] for p in product_qs}
 
+        # Create dictionary for error messages
         product_err_msgs = {}
+
+        # Iterate through sorted products
         for product_dict in sorted_product_data:
+            # Extract id and quantity of current product
             product_id = product_dict["id"]
+            product_quantity = product_dict["quantity"]
+
+            # Check if product exists and if quantity is valid
             if product_id not in product_quantities:
                 err_msg = f"product with id {product_id} does not exist"
                 product_err_msgs[product_id] = err_msg
-            elif product_dict["quantity"] > product_quantities[product_id]:
+            elif product_quantity > product_quantities[product_id]:
                 err_msg = f"only {product_quantities[product_id]} items available"
                 product_err_msgs[product_id] = err_msg
 
+        # If any errors, raise ValidationError
         if product_err_msgs:
             raise serializers.ValidationError(product_err_msgs)
-        return data
 
+        # Return original data if all checks pass
+        return data
 
     def create(self, validated_data):
         products = validated_data.pop("products")
